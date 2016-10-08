@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>家のLEDの色を変える</title>
+	<meta name="robots" content="noindex">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style type="text/css">
+	<!--
+	body {
+		font-family: Helvetica , "游ゴシック" , "Yu Gothic" , sans-serif;
+		color: #444444;
+	}
+	h1 {
+		font-size: 100%;
+	}
+	#container {
+		max-width: 480px;
+		width: 90%;
+		margin: 0 auto;
+	}
+	label {
+		width: 100%;
+		display: block;
+		margin: 40px auto;
+	}
+	input[type="range"] {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		background: #ccc;
+		height: 3px;
+		width: 80%;
+		margin-left: 5%;
+	}
+	input[type="range"]::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #eee;
+		box-shadow: 0 0 10px #666;
+	}
+	input[type="range"]:focus {
+		outline: none;
+	}
+	span {
+		display: inline-block;
+		width: 5%;
+	}
+
+
+
+	-->
+	</style>
+</head>
+
+<body>
+	<div id="container">
+		<h1>@toofu__の家のLEDの色を変えるテスト</h1>
+		<p>@toofu__が家で暇してたらツイッターで色実況します。</p>
+		<label>R <span>0</span><input type="range" min="0" max="255" value="0" data-num="0"></label>
+		<label>G <span>0</span><input type="range" min="0" max="255" value="0" data-num="1"></label>
+		<label>B <span>0</span><input type="range" min="0" max="255" value="0" data-num="2"></label>
+	</div>
+
+	<script type="text/javascript">
+	<!--
+	window.addEventListener("DOMContentLoaded", function() {
+		var sliders = document.querySelectorAll("input");
+		var colorValue = document.querySelectorAll("label span");
+
+		// 初めにサーバー上の色情報を取得、その後継続的にサーバーに色情報を送信
+		getColor(foreverSetColor);
+
+		//ツマミを動かすとツマミ横の値を変更
+		for (var i = 0; i < sliders.length; i++) {
+			sliders[i].addEventListener("input", function(e) {
+				colorValue[e.target.dataset.num].innerHTML = this.value;
+				setBackGroundColor();
+			}, false);
+		}
+
+		// ウェブページの背景色修正
+		function setBackGroundColor() {
+			document.body.style.backgroundColor = "rgb(" + sliders[0].value + "," + sliders[1].value + "," + sliders[2].value + ")";
+		}
+
+		// サーバー上の色情報取得
+		function getColor(callback) {
+			var callback = callback;
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "php/colorGet.php", true);
+			xhr.onreadystatechange = function() {
+				if (this.readyState === this.DONE) {
+					var resultRGB = this.responseText.split("&");
+					var color = [];
+					resultRGB.forEach(function(val, index) {
+						// RGBそれぞれに対しての操作
+						color[index] = val.substr(val.indexOf("=")+ 1);
+						sliders[index].value = color[index];
+						colorValue[index].innerHTML = color[index];
+					});
+					setBackGroundColor();
+					// 色情報取得を完了してから色情報の送信を始める
+					callback();
+				}
+			}
+			xhr.send();
+		}
+
+		// サーバーに色情報送信
+		function foreverSetColor() {
+			var data = {
+				colorR: sliders[0].value,
+				colorG: sliders[1].value,
+				colorB: sliders[2].value
+			};
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "php/colorSet.php", true);
+			xhr.setRequestHeader('Content-type', 'x-www-form-urlencoded');
+			xhr.onreadystatechange = function() {
+				if (this.readyState === this.DONE){
+					setTimeout(foreverSetColor(), 1000);
+				}
+			};
+			xhr.send(EncodeHTMLForm(data));
+		}
+
+		function EncodeHTMLForm(data){
+			var params = [];
+			for(var name in data) {
+				var value = data[name];
+				var param = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+				params.push(param);
+			}
+			return params.join('&').replace( /%20/g, '+' );
+		}
+
+	}, false);
+
+	// -->
+	</script>
+</body>
+</html>
